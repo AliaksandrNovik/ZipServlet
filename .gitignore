@@ -1,0 +1,24 @@
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+
+*.class
+# Mobile Tools for Java (J2ME)
+.mtj.tmp/
+# Package Files #
+*.war
+*.ear
+<<<<<<< HEAD
+* .classpath
+*.txt
+*.html
+=======
+.classpath
+>>>>>>> e098d94882ee9d156a6d3a1a861235f068742f00
+*.project
+/codecover
+ /target
+/.settings
+/.metadata
+/bin
+
