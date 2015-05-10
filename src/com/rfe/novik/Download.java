@@ -4,17 +4,10 @@ import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
-
-
-
-
-
-
 
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
@@ -23,14 +16,14 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.rfe.novik.zip.Zip;
 
 @WebServlet("/Download" )
 
 public class Download extends HttpServlet {
 
+	
 	private static final long serialVersionUID = 1L;
-	private final String WORK_PATH = "D:/epam/";
+	private final String WORK_PATH = "D:/EclipseEE/eclipse";
 	private final Double BYTE = 1024.0;
 	private String URL_FILE = "https://cdn2.iconfinder.com/data/icons/windows-8-metro-style/512/file.png";
 	private String URL_FOLDER = "http://photosinbox.com/wp-content/uploads/2011/07/manila-folder.jpg";
@@ -46,7 +39,7 @@ public class Download extends HttpServlet {
 		out.println("    width: 100%; ");/* Ширина всей таблицы */
 		out.println("   }");  
 		out.println("  TD {");
-		out.println("    vertical-align: top; ");/* Вертикальное выравнивание в ячейках */
+		out.println("    vertical-align: top; ");
 		out.println("    padding: 5px;"); /* Поля вокруг ячеек */
 		out.println("   }");
 		out.println("   TD.leftcol {");
@@ -58,6 +51,7 @@ public class Download extends HttpServlet {
 		out.println("   }");
 		out.println("  </style>");
 	}
+	
 	public String getTypeFile(File file){
 		if (file.isDirectory()){
 			return "Directory";
@@ -66,23 +60,27 @@ public class Download extends HttpServlet {
 			return "File";
 		}
 	}
-	
+
 	public String getFileSizeInKB(File file){
 		double sizeFile = file.length();
 		String formatedSizeOfFile = String.format("%.3f", sizeFile/BYTE );
 		return formatedSizeOfFile + "  KB"; 
 	}
 	
-	public void showListFiles(HttpServletResponse response,HttpServletRequest request) throws IOException{
-		response.setContentType("text/html");
-		String filePath = WORK_PATH;
-		File currentFolder = new File(filePath);
-		File[] listdFiles = currentFolder.listFiles();
+	public void printButtonZip(HttpServletResponse response,HttpServletRequest request) throws IOException{
+		PrintWriter out = response.getWriter();
+		out.println("</tr>");
+		out.println("<table>");
+		out.println( "<input type='submit' name='button1' value='Get Zip Url' />"	+"</form>");
+		out.println("</body>");
+		out.println("</html>");
+	}
+	
+	public void printHeaderTable(HttpServletResponse response,HttpServletRequest request) throws IOException{
 		PrintWriter out = response.getWriter();
 		out.println("<body>");
 		out.print("<form  method='post'>");
 		out.println("<table cellspacing='0' class='layout'>");
-		
 		out.println("<tr>");
 		out.println("<th>" + "" + "</th>");
 		out.println("<th>" + "Name" + "</th>");
@@ -90,38 +88,81 @@ public class Download extends HttpServlet {
 		out.println("<th>" + "Type" + "</th>");
 		out.println("<th>" + "Zip" + "</th>");
 		out.println("</tr>");
-		for(File file: listdFiles){
-			out.println("<tr>"); 
-			if (file.isFile()){
-			out.print("<td><img src='" +URL_FILE + "'"
-					+ " alt='"+"folder"+"' + style='width:20px;height:22px'> </td>");
-			}else{
-				out.print("<td><img src='"+URL_FOLDER+"'"
-						+ " alt='"+"folder"+"' + style='width:20px;height:22px'> </td>");
-			}
-			out.println( "<td>"+ file.getName() + "</td>" );/**/
-			out.println( "<td>"+ getFileSizeInKB(file)+ "</td>" );
-			out.println( "<td>"+  getTypeFile(file)+ "</td>" );
-			out.println("<td><input type='checkbox' name ='fileName' value='" +file.getName()+"'/><td>" );
-			out.println("</tr>");
-		}
-		out.println("</tr>");
-		out.println("<table>");
-		out.println( "<input type='submit' name='button1' value='Get Zip Url' />"	+"</form>");
-		out.println("</body>");
-		out.println("</html>");
 	}
+	
+	public void printListFiles(HttpServletResponse response,HttpServletRequest request) throws IOException{
+		response.setContentType("text/html");
+		String filePath = WORK_PATH;
+		File currentFolder = new File(filePath);
+		File[] listdFiles = currentFolder.listFiles();
+		PrintWriter out = response.getWriter();
 
+		for(File file: listdFiles){
+			if(file.isFile()){
+				out.println("<tr>"); 
+				if (file.isFile()){
+					out.print("<td><img src='" +URL_FILE + "'"
+							+ " alt='"+"folder"+"' + style='width:20px;height:22px'> </td>");
+				}else{
+					out.print("<td><img src='"+URL_FOLDER+"'"
+							+ " alt='"+"folder"+"' + style='width:20px;height:22px'> </td>");
+				}
+				out.println( "<td>"+ file.getName() + "</td>" );/**/
+				if(file.isFile()){
+					out.println( "<td>"+ getFileSizeInKB(file)+ "</td>" );
+				}else{
+					out.println( "<td>"+ "  "+ "</td>" );
+				}
+				out.println( "<td>"+  getTypeFile(file)+ "</td>" );
+				out.println("<td><input type='checkbox' name ='fileName' value='" +file.getName()+"'/><td>" );
+				out.println("</tr>");
+			}
+		}
+
+	}
+	
+	public void printListFolders(HttpServletResponse response,HttpServletRequest request) throws IOException{
+		response.setContentType("text/html");
+		String filePath = WORK_PATH;
+		File currentFolder = new File(filePath);
+		File[] listdFiles = currentFolder.listFiles();
+		PrintWriter out = response.getWriter();
+		for(File file: listdFiles){
+			if(file.isDirectory()){
+				out.println("<tr>"); 
+				if (file.isFile()){
+					out.print("<td><img src='" +URL_FILE + "'"
+							+ " alt='"+"folder"+"' + style='width:20px;height:22px'> </td>");
+				}else{
+					out.print("<td><img src='"+URL_FOLDER+"'"
+							+ " alt='"+"folder"+"' + style='width:20px;height:22px'> </td>");
+				}
+				out.println( "<td>"+ file.getName() + "</td>" );/**/
+				if(file.isFile()){
+					out.println( "<td>"+ getFileSizeInKB(file)+ "</td>" );
+				}else{
+					out.println( "<td>"+ "  "+ "</td>" );
+				}
+				out.println( "<td>"+  getTypeFile(file)+ "</td>" );
+				out.println("<td><input type='checkbox' name ='fileName' value='" +file.getName()+"'/><td>" );
+				out.println("</tr>");
+			}
+		}
+	}
+	
+	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		printCssStyleTable(response);
-		showListFiles(response, request);
-
+		printHeaderTable(response, request);
+		printListFolders(response, request);
+		printListFiles(response, request);
+		printButtonZip(response, request);
 	}
+	
 	private byte[] zipFiles(File directory, String[] files) throws IOException {
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		ZipOutputStream zos = new ZipOutputStream(baos);
 		byte bytes[] = new byte[2048];
-
 		for (String fileName : files) {
 			FileInputStream fis = new FileInputStream(directory.getPath() + 
 					"/" +fileName);
@@ -143,9 +184,10 @@ public class Download extends HttpServlet {
 		baos.close();
 		return baos.toByteArray();
 	}
+	@Override
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		String[] listCheckedFiles = request.getParameterValues("fileName");
-		File directory = new File("D:/epam/");
+		File directory = new File(WORK_PATH);
 		byte[] zip = zipFiles(directory, listCheckedFiles);
 		ServletOutputStream sos = response.getOutputStream();
 		response.setContentType("application/zip");
